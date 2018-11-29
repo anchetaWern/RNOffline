@@ -4,7 +4,8 @@ import {
   Text,
   Image,
   ActivityIndicator,
-  TouchableOpacity
+  TouchableOpacity,
+  Button
 } from "react-native";
 import { connect } from "react-redux";
 
@@ -45,7 +46,9 @@ class PokemonLoader extends Component {
               <View>
                 <View style={styles.smallTextContainer}>
                   <Text style={styles.errorText}>Something went wrong</Text>
+                  <Text>Would you like to view the last Pokemon instead?</Text>
                 </View>
+                <Button onPress={this.rehydrate} title="Yes" color="#841584" />
               </View>
             )}
           </View>
@@ -53,6 +56,10 @@ class PokemonLoader extends Component {
       </View>
     );
   }
+
+  rehydrate = () => {
+    this.props.requestPersistedPokemon();
+  };
 }
 
 const styles = {
@@ -95,7 +102,8 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    requestPokemon: () => dispatch({ type: "API_CALL_REQUEST" })
+    requestPokemon: () => dispatch({ type: "API_CALL_REQUEST" }),
+    requestPersistedPokemon: () => dispatch({ type: "API_CALL_RESTORE" })
   };
 };
 
