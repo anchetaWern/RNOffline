@@ -1,0 +1,11 @@
+node_modules/**/*
+.expo/*
+npm-debug.*
+.DS_Store
+yarn.lock
+
+.buckconfig
+.flowconfig
+
+ios/
+android/
