@@ -26,6 +26,7 @@ import {
 } from 'react-native-cached-image';
 
 import loginUser from '../helpers/loginUser';
+import NetworkStatusBanner from "../components/NetworkStatusBanner";
 
 class ChatScreen extends Component {
   static navigationOptions = ({ navigation }) => {
@@ -43,20 +44,46 @@ class ChatScreen extends Component {
     is_picking_file: false
   };
 
-
-  async componentDidMount() {
-    this.initializeChatRoom();
+  constructor(props) {
+    super(props);
+    this.unsent_messages = [];
   }
 
 
-  initializeChatRoom = async () => {
+  async componentDidMount() {
+    this.initializeChatRoom(false);
+  }
 
-    const { room, setMessages, navigation } = this.props;
 
-    this.currentUser = navigation.getParam("currentUser");
+  async componentDidUpdate (prevProps, prevState) {
+    const { isConnected, user, navigation } = this.props;
+    const currentUser = navigation.getParam('currentUser');
+
+    if (isConnected && prevProps.isConnected != isConnected) {
+      this.currentUser = await loginUser(currentUser.id);
+      this.initializeChatRoom(true);
+    } else if (!isConnected  && prevProps.isConnected != isConnected) {
+      this.currentUser = user;
+    }
+  }
+
+
+  initializeChatRoom = async (came_back_online) => {
+
+    const { isConnected, room, messages, setMessages, navigation } = this.props;
+
+    if (!came_back_online) {
+      this.currentUser = navigation.getParam("currentUser");
+    }
+
     this.roomName = navigation.getParam("roomName");
 
-    setMessages([]);
+    if (isConnected) { // retains the old messages if user is offline
+      this.unsent_messages = messages.filter((msg) => {
+        return msg.not_sent;
+      });
+      setMessages([]);
+    }
 
     try {
       await this.currentUser.leaveRoom({ roomId: room.id });
@@ -91,6 +118,12 @@ class ChatScreen extends Component {
       }
     } else {
       await this.subscribeToRoom(chat_room.id);
+      this.setState({
+        is_initialized: true
+      });
+    }
+
+    if(!isConnected){ // if the user is offline, just proceed
       this.setState({
         is_initialized: true
       });
@@ -132,11 +165,11 @@ class ChatScreen extends Component {
 
   sendMessage = async (message) => {
 
-    const { room, putMessage } = this.props;
+    const { room, isConnected, putMessage } = this.props;
 
     let msg = {
       text: message.text,
-      createdAt: message.createdAt,
+      createdAt: message.createdAt, // note: this doesn't work. createdAt seems to be generated in Chatkit's database
       roomId: room.id
     };
 
@@ -148,6 +181,10 @@ class ChatScreen extends Component {
       msg.attachment = this.getAttachment();
     }
 
+    if (message.attachment) {
+      msg.attachment = message.attachment;
+    }
+
     try {
       await this.currentUser.sendMessage(msg);
 
@@ -157,6 +194,22 @@ class ChatScreen extends Component {
       });
     } catch (e) {
       console.log("error sending message: ", e);
+    }
+
+    if (!isConnected) {
+
+      message.not_sent = true;
+      if (this.attachment) {
+        message.attachment = this.getAttachment();
+        message.image = this.attachment.uri;
+      }
+
+      putMessage(message);
+      this.attachment = null;
+
+      this.setState({
+        is_sending: false
+      });
     }
   }
 
@@ -185,11 +238,16 @@ class ChatScreen extends Component {
 
 
   render() {
-    const { room, navigation, messages } = this.props;
+    const { isConnected, isNetworkBannerVisible, room, navigation, messages } = this.props;
     const roomName = navigation.getParam("roomName");
 
     return (
       <View style={styles.container}>
+        <NetworkStatusBanner
+          isConnected={isConnected}
+          isVisible={isNetworkBannerVisible}
+        />
+
         {(this.state.is_loading || !this.state.is_initialized) && (
           <ActivityIndicator
             size="small"
@@ -367,15 +425,27 @@ class ChatScreen extends Component {
         messageLimit: 11
       });
 
+      this.unsent_messages.reverse();
+
+      for(msg of this.unsent_messages){
+        await this.sendMessage(msg);
+      }
+
+      this.unsent_messages = [];
+
     } catch (e) {
       console.log("error while subscribing to room: ", e);
     }
   };
 }
 
-const mapStateToProps = ({ chat }) => {
-  const { room, messages } = chat;
+const mapStateToProps = ({ chat, network }) => {
+  const { isNetworkBannerVisible, user, room, messages } = chat;
+  const { isConnected } = network;
   return {
+    isConnected,
+    isNetworkBannerVisible,
+    user,
     room,
     messages
   };

@@ -2,7 +2,7 @@ import { ChatManager, TokenProvider } from "@pusher/chatkit";
 
 import { setCurrentUser } from "../actions";
 
-const instanceLocatorId = "YOUR INSTANCE LOCATOR ID";
+const instanceLocatorId = "YOUR CHATKIT INSTANCE LOCATOR ID";
 const tokenProvider = new TokenProvider({
   url: `https://us1.pusherplatform.io/services/chatkit_token_provider/v1/${instanceLocatorId}/token`
 });

@@ -3,13 +3,17 @@ import {
   View,
   Text,
   TextInput,
-  TouchableOpacity
+  TouchableOpacity,
+  Alert
 } from "react-native";
 
 import { ChatManager, TokenProvider } from "@pusher/chatkit";
+import SInfo from "react-native-sensitive-info";
+import { connect } from "react-redux";
 
 const CHAT_SERVER = "YOUR_NGROK_HTTPS_URL/users";
 
+import NetworkStatusBanner from "../components/NetworkStatusBanner";
 import loginUser from '../helpers/loginUser';
 
 class LoginScreen extends Component {
@@ -19,6 +23,7 @@ class LoginScreen extends Component {
 
   state = {
     username: "",
+    passcode: "",
     enteredChat: false
   };
 
@@ -29,19 +34,37 @@ class LoginScreen extends Component {
   }
 
   render() {
+    const { isConnected, isNetworkBannerVisible } = this.props;
     return (
       <View style={styles.wrapper}>
+        <NetworkStatusBanner
+          isConnected={isConnected}
+          isVisible={isNetworkBannerVisible}
+        />
         <View style={styles.container}>
           <View style={styles.main}>
             <View style={styles.fieldContainer}>
-              <View>
-                <Text style={styles.label}>Enter your username</Text>
-                <TextInput
-                  style={styles.textInput}
-                  onChangeText={username => this.setState({ username })}
-                  value={this.state.username}
-                />
-              </View>
+
+              {
+                isConnected &&
+                <View>
+                  <Text style={styles.label}>Enter your username</Text>
+                  <TextInput
+                    style={styles.textInput}
+                    onChangeText={username => this.setState({ username })}
+                    value={this.state.username}
+                  />
+                </View>
+              }
+
+              <Text style={styles.label}>Enter your passcode</Text>
+              <TextInput
+                style={styles.textInput}
+                onChangeText={passcode => this.setState({ passcode })}
+                maxLength={6}
+                secureTextEntry={true}
+                value={this.state.passcode}
+              />
 
               {!this.state.enteredChat && (
                 <TouchableOpacity onPress={this.enterChat}>
@@ -64,7 +87,8 @@ class LoginScreen extends Component {
   //
 
   enterChat = async () => {
-    const { username } = this.state;
+    const { user, isConnected } = this.props;
+    const { username, passcode } = this.state;
 
     let chatserver_response = { ok: false };
 
@@ -94,6 +118,7 @@ class LoginScreen extends Component {
 
         this.setState({
           username: "",
+          passcode: "",
           enteredChat: false
         });
 
@@ -106,10 +131,39 @@ class LoginScreen extends Component {
 
     }
 
+    if (!isConnected) {
+      const stored_passcode = await SInfo.getItem('passcode', {});
+      if (stored_passcode == passcode) {
+        this.props.navigation.navigate("Users", {
+          currentUser: user
+        });
+      } else {
+        Alert.alert("Incorrect Passcode", "Please try again.");
+      }
+
+      this.setState({
+        passcode: "",
+        enteredChat: false
+      });
+    }
+
   };
 }
 
-export default LoginScreen;
+const mapStateToProps = ({ network, chat }) => {
+  const { isConnected } = network;
+  const { user, isNetworkBannerVisible } = chat;
+  return {
+    isConnected,
+    user,
+    isNetworkBannerVisible
+  };
+};
+
+export default connect(
+  mapStateToProps,
+  null
+)(LoginScreen);
 
 const styles = {
   wrapper: {

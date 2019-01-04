@@ -8,7 +8,10 @@ import {
   PUT_OLDER_MESSAGES
 } from "../actions/types";
 
+import { offlineActionTypes, reducer as network } from "react-native-offline";
+
 const INITIAL_STATE = {
+  isNetworkBannerVisible: false,
   user: null,
   room: null,
   users: [],
@@ -17,6 +20,13 @@ const INITIAL_STATE = {
 
 export default (state = INITIAL_STATE, action) => {
   switch (action.type) {
+    case offlineActionTypes.CONNECTION_CHANGE:
+      if (network.isConnected != action.payload && !action.payload) {
+        return { ...state, isNetworkBannerVisible: true };
+      } else {
+        return { ...state, isNetworkBannerVisible: false };
+      }
+
     case SET_CURRENT_USER:
       return { ...state, user: action.user };
 

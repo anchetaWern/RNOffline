@@ -9,3 +9,4 @@ yarn.lock
 
 ios/
 android/
+server/node_modules
