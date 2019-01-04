@@ -9,12 +9,14 @@ import {
 
 import { connect } from "react-redux";
 
-const presenceRoomId = "YOUR PRESENCE ROOM ID";
+const presenceRoomId = "19375751";
 
 import { setUsers } from "../actions";
 
 import sortUsers from '../helpers/sortUsers';
 import loginUser from '../helpers/loginUser';
+
+import NetworkStatusBanner from "../components/NetworkStatusBanner";
 
 class UsersScreen extends Component {
   static navigationOptions = {
@@ -68,6 +70,20 @@ class UsersScreen extends Component {
   }
 
 
+  async componentDidUpdate (prevProps, prevState) {
+
+    const { isConnected, user, navigation } = this.props;
+    const currentUser = navigation.getParam('currentUser');
+
+    if (isConnected && prevProps.isConnected != isConnected) {
+      this.currentUser = await loginUser(currentUser.id);
+      this.subscribeToPresenceRoom();
+    } else if (!isConnected  && prevProps.isConnected != isConnected) {
+      this.currentUser = user;
+    }
+  }
+
+
   async componentWillUnmount() {
     try {
       await this.currentUser.disconnect();
@@ -78,8 +94,13 @@ class UsersScreen extends Component {
 
 
   render() {
+    const { isConnected, isNetworkBannerVisible } = this.props;
     return (
       <View style={styles.container}>
+        <NetworkStatusBanner
+          isConnected={isConnected}
+          isVisible={isNetworkBannerVisible}
+        />
         { this.renderUsers() }
       </View>
     );
@@ -176,6 +197,7 @@ class UsersScreen extends Component {
 
 
   beginChat = async user => {
+    const { isConnected } = this.props;
     let roomName = [user.id, this.currentUser.id];
     roomName = roomName.sort().join("_") + "_room";
 
@@ -189,10 +211,15 @@ class UsersScreen extends Component {
   };
 }
 
-const mapStateToProps = ({ chat }) => {
-  const { users } = chat;
+const mapStateToProps = ({ chat, network }) => {
+  const { user, users, isNetworkBannerVisible } = chat;
+  const { isConnected } = network;
+
   return {
-    users
+    isConnected,
+    user,
+    users,
+    isNetworkBannerVisible
   };
 };
 
