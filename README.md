@@ -21,6 +21,8 @@ cd RNOffline
 - `starter` - this is where you switch to if you're following part 1 of the series.
 - `redux-persist-sample` - contains the sample code for working with redux-persist.
 - `master` - contains the most recent version of the code.
+- `starter-chat` - contains the starter version of the chat app. This is the branch you switch to when following the second part of the series.
+- `offline-friendly-chat` - contains the final output for the whole series.
 
 3. Install the app dependencies:
 

@@ -1,18 +1,25 @@
 import React, { Component } from "react";
 import { createStackNavigator, createAppContainer } from "react-navigation";
 
-import ImagesScreen from "./src/screens/ImagesScreen";
-import OnlineStatusScreen from "./src/screens/OnlineStatusScreen";
-import RehydrateScreen from "./src/screens/RehydrateScreen";
+import LoginScreen from "./src/screens/LoginScreen";
+import UsersScreen from "./src/screens/UsersScreen";
+import ChatScreen from "./src/screens/ChatScreen";
+
+import { Provider } from "react-redux";
+import { createStore } from "redux";
+
+import reducers from "./src/reducers";
+
+const store = createStore(reducers);
 
 const RootStack = createStackNavigator(
   {
-    Images: ImagesScreen,
-    OnlineStatus: OnlineStatusScreen,
-    Rehydrate: RehydrateScreen
+    Login: LoginScreen,
+    Users: UsersScreen,
+    Chat: ChatScreen
   },
   {
-    initialRouteName: "Rehydrate"
+    initialRouteName: "Login"
   }
 );
 
@@ -20,7 +27,11 @@ const AppContainer = createAppContainer(RootStack);
 
 class Router extends Component {
   render() {
-    return <AppContainer />;
+    return (
+      <Provider store={store}>
+        <AppContainer />
+      </Provider>
+    );
   }
 }
 
