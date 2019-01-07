@@ -1,6 +1,11 @@
 # RNOffline
 A sample React Native app showing practical examples of how to make offline-friendly apps.
 
+You can read the full tutorial here: 
+
+- [https://pusher.com/tutorials/offline-react-native-part-1](https://pusher.com/tutorials/offline-react-native-part-1)
+- [https://pusher.com/tutorials/offline-react-native-part-2](https://pusher.com/tutorials/offline-react-native-part-2)
+
 ### Prerequisites
 
 - React Native development environment or [Expo](https://expo.io/)
