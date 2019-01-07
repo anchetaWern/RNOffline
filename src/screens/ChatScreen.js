@@ -20,11 +20,6 @@ import {
   putOlderMessages
 } from "../actions";
 
-import {
-  CachedImage,
-  ImageCacheProvider
-} from 'react-native-cached-image';
-
 import loginUser from '../helpers/loginUser';
 import NetworkStatusBanner from "../components/NetworkStatusBanner";
 
