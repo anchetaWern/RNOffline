@@ -23,6 +23,8 @@ import {
 import loginUser from '../helpers/loginUser';
 import NetworkStatusBanner from "../components/NetworkStatusBanner";
 
+const CHAT_SERVER = "https://YOUR_NGROK_URL/rooms";
+
 class ChatScreen extends Component {
   static navigationOptions = ({ navigation }) => {
     const { params } = navigation.state;
@@ -81,49 +83,30 @@ class ChatScreen extends Component {
     }
 
     try {
-      await this.currentUser.leaveRoom({ roomId: room.id });
-      await this.currentUser.roomSubscriptions[room.id].cancel();
-    } catch (e) {
-      console.log("error leaving room: ", e);
-    }
-
-    let chat_room = null;
-    try {
-      let rooms = await this.currentUser.getJoinableRooms();
-      chat_room = rooms.find(room => {
-        return room.name == this.roomName;
+      let response = await fetch(CHAT_SERVER, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          user_id: this.currentUser.id,
+          room_name: this.roomName
+        })
       });
-    } catch (e) {
-      console.log("error getting joinable rooms: ", e);
-    }
 
-    if (!chat_room) {
-      try {
-        let room = await this.currentUser.createRoom({
-          name: this.roomName,
-          private: false
-        });
+      if (response.ok) {
+        let room = await response.json();
 
-        await this.subscribeToRoom(room.id);
-        this.setState({
+        let room_id = parseInt(room.id);
+        await this.subscribeToRoom(room_id);
+
+        await this.setState({
           is_initialized: true
         });
-      } catch (e) {
-        console.log("error creating room: ", e);
       }
-    } else {
-      await this.subscribeToRoom(chat_room.id);
-      this.setState({
-        is_initialized: true
-      });
+    } catch (err) {
+      console.log("error with chat server: ", err);
     }
-
-    if(!isConnected){ // if the user is offline, just proceed
-      this.setState({
-        is_initialized: true
-      });
-    }
-
   }
 
 
