@@ -35,7 +35,19 @@ cd RNOffline
 yarn install
 ```
 
-4. Run the app:
+4. Eject the project (re-creates the `ios` and `android` folders):
+
+```
+react-native eject
+```
+
+5. Link the dependencies:
+
+```
+react-native link
+```
+
+6. Run the app:
 
 ```
 react-native run-android
