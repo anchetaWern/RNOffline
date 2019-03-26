@@ -110,18 +110,6 @@ class ChatScreen extends Component {
   }
 
 
-  fetchAttachment = async link => {
-    let file = await this.currentUser.fetchAttachment({
-      url: link
-    });
-
-    return {
-      name: file.file.name,
-      link: file.link
-    };
-  };
-
-
   onReceive = async data => {
 
     const { messages, putMessage } = this.props;
@@ -209,7 +197,6 @@ class ChatScreen extends Component {
         name: `${filename}`
       },
       name: `${filename}`,
-      fetchRequired: true,
       type: attachment.type
     };
   }
@@ -278,19 +265,15 @@ class ChatScreen extends Component {
       user: {
         _id: senderId,
         name: senderId,
-        avatar:
-          "https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_960_720.png"
+        avatar: "https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_960_720.png"
       }
     };
 
-    if (attachment && attachment.fetchRequired) {
+    if (attachment) {
       const { link, type } = attachment;
-      let file = await this.fetchAttachment(attachment.link);
       if (type == "image") {
-        msg_data.image = file.link;
+        msg_data.image = link;
       }
-    } else if (attachment && !attachment.fetchRequired) {
-      msg_data.image = attachment.link;
     }
 
     return {
