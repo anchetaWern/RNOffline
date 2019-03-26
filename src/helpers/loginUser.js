@@ -3,9 +3,6 @@ import { ChatManager, TokenProvider } from "@pusher/chatkit";
 import { setCurrentUser } from "../actions";
 
 const instanceLocatorId = "YOUR INSTANCE LOCATOR ID";
-const tokenProvider = new TokenProvider({
-  url: `https://us1.pusherplatform.io/services/chatkit_token_provider/v1/${instanceLocatorId}/token`
-});
 
 const loginUser = async (username) => {
 
@@ -13,7 +10,9 @@ const loginUser = async (username) => {
     const chatManager = new ChatManager({
       instanceLocator: `v1:us1:${instanceLocatorId}`,
       userId: username,
-      tokenProvider
+      tokenProvider: new TokenProvider({
+        url: `https://us1.pusherplatform.io/services/chatkit_token_provider/v1/${instanceLocatorId}/token`
+      })
     });
 
     const currentUser = await chatManager.connect();

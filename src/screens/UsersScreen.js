@@ -38,7 +38,7 @@ class UsersScreen extends Component {
 
     try {
       let room = await this.currentUser.subscribeToRoom({
-        roomId: parseInt(presenceRoomId),
+        roomId: presenceRoomId,
         hooks: {
           onUserCameOnline: this.handleInUser,
           onUserJoinedRoom: this.handleInUser,

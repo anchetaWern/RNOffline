@@ -6,8 +6,6 @@ import {
   TouchableOpacity
 } from "react-native";
 
-import { ChatManager, TokenProvider } from "@pusher/chatkit";
-
 const CHAT_SERVER = "YOUR_NGROK_HTTPS_URL/users";
 
 import loginUser from '../helpers/loginUser';

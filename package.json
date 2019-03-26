@@ -9,7 +9,7 @@
   "dependencies": {
     "react": "16.6.3",
     "react-native": "0.57.8",
-    "@pusher/chatkit": "^0.7.18",
+    "@pusher/chatkit-client": "^1.4.1",
     "axios": "^0.18.0",
     "random-string": "^0.2.0",
     "react-native-gesture-handler": "^1.0.9",
