@@ -7,7 +7,6 @@ import {
   Alert
 } from "react-native";
 
-import { ChatManager, TokenProvider } from "@pusher/chatkit";
 import SInfo from "react-native-sensitive-info";
 import { connect } from "react-redux";
 
